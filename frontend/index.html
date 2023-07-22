@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: "Open Sans", sans-serif;
+
+            display: grid;
+            place-items: center;
+            background-color: #110e1b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            position: relative;
+        }
+
+        .front_card {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 450px;
+            background-color: #5c162e;
+
+            display: flex;
+
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+            /*clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);*/
+            transition: clip-path 0.5s ease;
+        }
+
+        .front_card > .login_form {
+            opacity: 1;
+            transition: opacity 0.2s linear;
+        }
+
+        .front_card > .signup_form {
+            opacity: 0;
+            transition: opacity 0.2s linear;
+        }
+
+        .front_card.front_card_signup > .login_form {
+            opacity: 0;
+        }
+
+        .front_card.front_card_signup {
+            clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+        }
+
+        .front_card.front_card_signup > .signup_form {
+            opacity: 1;
+        }
+
+        .front_card form {
+            color: #f8f9fa;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .back_card {
+            width: 650px;
+            height: 350px;
+            background-color: #7c162e;
+            display: flex;
+        }
+
+        .back_card > div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back_card > div > h2 {
+            color: #f3f3f3;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            outline: none;
+            font-size: 13px;
+            border-radius: 4px;
+            font-family: "Open Sans", sans-serif;
+            padding: 12px 10px;
+            font-weight: 400;
+            width: 100%;
+            box-sizing: border-box;
+            background: #110e1b;
+            color: #f3f3f3;
+            border: 1px solid #7c162e;
+        }
+
+        input:focus {
+            border: 1px solid #f3f3f3;
+        }
+
+        button {
+            border: none;
+            box-shadow: none;
+            font-family: "Open Sans", sans-serif;
+            background-color: #f3f3f3;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+
+        <div class="front_card">
+            <form class="login_form" action="javascript:void(0);">
+                <input type="text" id="mobile3" placeholder="Mobile">
+                <input type="password" id="password3" placeholder="Password">
+                <button class="login_btn" onclick="Login1()">LogIn</button>
+            </form>
+            <form class="signup_form" action="javascript:void(0);">
+                <input type="text" id="name2" placeholder="Name">
+                <input type="email" id="email2" placeholder="Email">
+                <input type="password" id="password2" placeholder="Password">
+                <input type="text" id="mobile2" placeholder="Mobile">
+                <button class="login_btn" onclick="Register1()">SignUp</button>
+            </form>
+        </div>
+
+        <div class="back_card">
+            <div class="login_msg">
+                <h2>Have account?</h2>
+                <button class="login_msg_btn">LogIn</button>
+            </div>
+            <div class="signup_msg">
+                <h2>Do not have account?</h2>
+                <button class="signup_msg_btn">SignUp</button>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+<script>
+    async function Register1(){
+        let signup_data={
+            customerName:document.getElementById("name2").value,
+            email:document.getElementById("email2").value,
+            password:document.getElementById("password2").value,
+            mobile:document.getElementById("mobile2").value,
+            address: {
+            city: "",
+            country: "",
+            id: 0,
+            pincode: "",
+            state: ""
+            },
+        }
+        
+        signup_data=JSON.stringify(signup_data)
+        
+        let signup_api_link=`http://localhost:8888/customer/register`
+        let response=await fetch(signup_api_link,{
+            method:"POST",
+            body:signup_data,
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+        let data=await response.json()
+        if(data.message!=null){
+            alert(data.message)
+        }
+        else{
+            console.log(data)
+            window.location.reload()
+        }
+        
+    }
+
+
+    async function Login1(){
+
+        let login_data={
+        mobile:document.getElementById("mobile3").value,
+        password:document.getElementById("password3").value,
+        }
+
+        login_data=JSON.stringify(login_data)
+
+        let login_api_link=`http://localhost:8888/userlogin/login`
+        let response=await fetch(login_api_link,{
+            method:"POST",
+            body:login_data,
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        let data=await response.json()
+        fun1(data)
+    }
+
+
+    function fun1(data){
+        if(data.uuid!=null){
+            localStorage.setItem("user",JSON.stringify(data))
+            window.location.href="user.html"
+        }
+        else{
+            alert(data.message)
+        }
+    }
+</script>
+
+<script>
+
+    const frontCard=document.querySelector(".front_card");
+    const signUpBtn=document.querySelector(".signup_msg_btn");
+    const loginBtn=document.querySelector(".login_msg_btn");
+    const userEmailInp=document.querySelector(".user_email");
+    const userFNameInp=document.querySelector(".user_full_name");
+
+    signUpBtn.addEventListener("click", () => {
+        frontCard.classList.add("front_card_signup");
+        userFNameInp.focus();
+    });
+
+    loginBtn.addEventListener("click", () => {
+        frontCard.classList.remove("front_card_signup");
+        userEmailInp.focus();
+    });
+
+</script>
